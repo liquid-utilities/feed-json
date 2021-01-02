@@ -84,6 +84,9 @@ layout: null
 
     {% comment %}
     Build and append entry for `external_url`
+    ```json
+    "exernal_url": "https://example.com/some-applicable-reference"
+    ```
     {% endcomment %}
     {% if post.external_url %}
       {% assign json_feed__post__external_url = post.external_url %}
@@ -129,6 +132,9 @@ layout: null
 
     {% comment %}
     Build and append entry for `summery`
+    ```json
+    "summery": "A description of page content"
+    ```
     {% endcomment %}
     {% if post.description or post.excerpt or post.summery %}
       {% assign json_feed__post__summery = post.description | default: post.excerpt | default: post.summery %}
@@ -145,6 +151,9 @@ layout: null
 
     {% comment %}
     Build and append entry for `image`
+    ```json
+    "image": "https://<account>.github.io/<project>/assets/images/cats/funny.png"
+    ```
     {% endcomment %}
     {% if post.image %}
       {% assign json_feed__post__image = post.image %}
@@ -356,6 +365,7 @@ layout: null
   {% endif %}
 
   {% comment %}
+  "home_page_url": "https://<account>.github.io/<project>"
   {% endcomment %}
   {% capture json_feed__collection__home_page_url__key_value %}
     "home_page_url":{{ site.url | jsonify }}
@@ -365,7 +375,7 @@ layout: null
   {% assign json_feed__collection__home_page_url__key_value = nil %}
 
   {% comment %}
-  "description": ""
+  "description": "Collection of example posts"
   {% endcomment %}
   {% assign json_feed__collection__description = page.description | default: post.summery | default: post.excerpt | default: nil %}
   {% if json_feed__collection__description %}
