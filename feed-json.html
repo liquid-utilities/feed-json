@@ -45,6 +45,17 @@ layout: null
     {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__author__data %}
   {% endif %}
 
+  {% comment %}
+  "language": "en-US"
+  {% endcomment %}
+  {% if page.language %}
+    {% capture json_feed__collection__language__key_value %}
+      "language":{{ page.language | jsonify }}
+    {% endcapture %}
+    {% assign json_feed__collection__language__key_value = json_feed__collection__language__key_value | strip | strip_newlines %}
+    {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__language__key_value %}
+  {% endif %}
+
   {% assign json_feed__has_output = false %}
   {% assign json_feed__items__list = '' | split: ',' %}
   {% for post in json_feed__collection__data %}
@@ -324,6 +335,28 @@ layout: null
     {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__content_text__data %}
     {% assign json_feed__post__content_text = nil %}
     {% assign json_feed__post__content_text__data = nil %}
+
+    {% comment %}
+    Build and append entry for `language`
+    ```json
+    "language": "en-US"
+    ```
+    {% endcomment %}
+    {% if post.language %}
+      {% assign json_feed__post__language = post.language %}
+
+      {% capture json_feed__post__language__data %}
+        "language":{{ json_feed__post__language | jsonify }}
+      {% endcapture %}
+      {% assign json_feed__post__language__data = json_feed__post__language__data | strip_newlines | strip %}
+
+      {% if json_feed__post__language__data != json_feed__collection__language__key_value %}
+        {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__language__data %}
+      {% endif %}
+
+      {% assign json_feed__post__language = nil %}
+      {% assign json_feed__post__language__data = nil %}
+    {% endif %}
 
     {% assign json_feed__entry__data = '{' %}
     {% capture json_feed__entry__data %}{{ json_feed__entry__data }}{{ json_feed__entry__list | join: ',' }}{% endcapture %}
