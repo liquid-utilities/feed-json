@@ -13,13 +13,11 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: Liquid Feed Json
+title: Liquid Feed JSON
 # email: your-email@example.com
 description: >- # this means to ignore newlines until "baseurl:"
   Layout that builds JSON feeds from Jekyll collections
-baseurl: "" # the subpath of your site, e.g. /blog
 url: 'https://liquid-utilities.github.io'
-# twitter_username: jekyllrb
 github_username: liquid-utilities
 author: S0AndS0
 
