@@ -64,8 +64,10 @@ layout: null
   {% endif %}
   {% if json_feed__collection__authors__data %}
     {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__authors__data %}
+    {% assign json_feed__collection__version__value = '1.1' %}
   {% elsif json_feed__collection__author__data %}
     {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__author__data %}
+    {% assign json_feed__collection__version__value = '1' %}
   {% endif %}
 
   {% comment %}
@@ -77,6 +79,7 @@ layout: null
     {% endcapture %}
     {% assign json_feed__collection__language__key_value = json_feed__collection__language__key_value | strip | strip_newlines %}
     {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__language__key_value %}
+    {% assign json_feed__collection__version__value = '1.1' %}
   {% endif %}
 
   {% assign json_feed__has_output = false %}
@@ -295,6 +298,7 @@ layout: null
       {% unless json_feed__post__authors__data == json_feed__collection__authors__data %}
         {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__authors__data %}
       {% endunless %}
+      {% assign json_feed__collection__version__value = '1.1' %}
       {% assign json_feed__post__authors = nil %}
       {% assign json_feed__post__authors__data = nil %}
     {% elsif json_feed__post__author__data %}
@@ -387,6 +391,7 @@ layout: null
         {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__language__data %}
       {% endif %}
 
+      {% assign json_feed__collection__version__value = '1.1' %}
       {% assign json_feed__post__language = nil %}
       {% assign json_feed__post__language__data = nil %}
     {% endif %}
@@ -416,7 +421,12 @@ layout: null
   }
   ```
   {% endcomment %}
-  {% assign json_feed__data__list = json_feed__data__list | push: '"version":"https://jsonfeed.org/version/1"' %}
+  {% capture json_feed__collection__version__key_value %}
+    "version":{{ "https://jsonfeed.org/version/" | append: json_feed__collection__version__value | jsonify }}
+  {% endcapture %}
+  {% assign json_feed__collection__version__key_value = json_feed__collection__version__key_value | strip | strip_newlines %}
+  {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__version__key_value %}
+  {% assign json_feed__collection__version__key_value = nil %}
 
   {% comment %}
   "title": "Collection Title"
@@ -561,6 +571,7 @@ layout: null
   {% assign json_feed__collection__name = nil %}
   {% assign json_feed__collection__data = nil %}
   {% assign json_feed__collection__authors__data = nil %}
+  {% assign json_feed__collection__version__value = nil %}
   {% assign json_feed__collection__author__data = nil %}
   {% assign json_feed__collection__language__key_value = nil %}
   {% assign json_feed__data__list = nil %}
