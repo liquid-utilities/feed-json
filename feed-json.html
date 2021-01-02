@@ -1,0 +1,491 @@
+---
+version: 0.0.1
+license: AGPL-3.0
+author: S0AndS0
+source: 'https://github.com/liquid-utilities/feed-json'
+layout: null
+---
+{% capture workspace__json_feed %}
+  {% assign json_feed__collection__name = page.collection_name | default: include.collection_name | default: nil %}
+  {% assign json_feed__collection__data = site[json_feed__collection__name] %}
+  {% assign json_feed__data__list = '' | split: ',' %}
+
+  {% comment %}
+  Builds `author` dictionary for collection
+  ```json
+  "author": {
+    "name": "S0AndS0",
+    "url": "https://github.com/S0AndS0",
+    "avatar": "https://avatars2.githubusercontent.com/u/4116150?s=460&u=c45ac68bdfbeec882ff760450de243df45700a73&v=4"
+  },
+  ```
+  {% endcomment %}
+  {% if page.author['name'] %}
+    {% assign json_feed__collection__author__value = page.author | jsonify %}
+    {% assign json_feed__collection__author__data = '"author":{' %}
+    {% assign json_feed__collection__author__data = json_feed__collection__author__data | append: json_feed__collection__author__value %}
+    {% assign json_feed__collection__author__data = json_feed__collection__author__data | append: '}' %}
+    {% assign json_feed__collection__author__value = nil %}
+  {% elsif page.author %}
+    {% assign json_feed__collection__author__data = '"author":{"name":"' %}
+    {% assign json_feed__collection__author__data = json_feed__collection__author__data | append: page.author %}
+    {% assign json_feed__collection__author__data = json_feed__collection__author__data | append: '"}' %}
+  {% elsif site.author['name'] %}
+    {% assign json_feed__collection__author__value = site.author | jsonify %}
+    {% assign json_feed__collection__author__data = '"author":{' %}
+    {% assign json_feed__collection__author__data = json_feed__collection__author__data | append: json_feed__collection__author__value %}
+    {% assign json_feed__collection__author__data = json_feed__collection__author__data | append: '}' %}
+    {% assign json_feed__collection__author__value = nil %}
+  {% elsif site.author %}
+    {% assign json_feed__collection__author__data = '"author":{"name":"' %}
+    {% assign json_feed__collection__author__data = json_feed__collection__author__data | append: site.author %}
+    {% assign json_feed__collection__author__data = json_feed__collection__author__data | append: '"}' %}
+  {% endif %}
+  {% if json_feed__collection__author__data %}
+    {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__author__data %}
+  {% endif %}
+
+  {% assign json_feed__has_output = false %}
+  {% assign json_feed__items__list = '' | split: ',' %}
+  {% for post in json_feed__collection__data %}
+    {% if page.relative_path == post.relative_path or post.slug == 'feed' %}
+      {% continue %}
+    {% elsif post.slug == json_feed__collection__name or post.slug == 'index' %}
+      {% continue %}
+    {% elsif post.ext == '.xml' or post.ext == '.rss' or post.ext == '.atom' %}
+      {% continue %}
+    {% endif %}
+    {% assign json_feed__has_output = true %}
+
+    {% assign json_feed__entry = '{' %}
+    {% assign json_feed__entry__list = '' | split: ',' %}
+
+    {% comment %}
+    Build and append entry for `id`
+    ```json
+    "id": "https://<account>.github.io/<project>/posts/<name>.<ext>"
+    ```
+    {% endcomment %}
+    {% if post.id %}
+      {% assign json_feed__post__id = post.id %}
+    {% else %}
+      {% assign json_feed__post__id = post.url | absolute_url %}
+    {% endif %}
+    {% capture json_feed__post__id__data %}
+      "id":{{ json_feed__post__id | jsonify }}
+    {% endcapture %}
+    {% assign json_feed__post__id__data = json_feed__post__id__data | strip %}
+    {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__id__data %}
+    {% assign json_feed__post__id = nil %}
+    {% assign json_feed__post__id__data = nil %}
+
+    {% comment %}
+    Build and append entry for `external_url`
+    {% endcomment %}
+    {% if post.external_url %}
+      {% assign json_feed__post__external_url = post.external_url %}
+
+      {% capture json_feed__post__external_url__data %}
+        "external_url":{{ json_feed__post__external_url | jsonify }}
+      {% endcapture %}
+      {% assign json_feed__post__external_url__data = json_feed__post__external_url__data | strip_newlines | strip %}
+
+      {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__external_url__data %}
+      {% assign json_feed__post__external_url = nil %}
+      {% assign json_feed__post__external_url__data = nil %}
+    {% endif %}
+
+    {% comment %}
+    Build and append entry for `title`
+    {% endcomment %}
+    {% if post.title %}
+      {% assign json_feed__post__title = post.title %}
+
+      {% capture json_feed__post__title__data %}
+        "title":{{ json_feed__post__title | jsonify }}
+      {% endcapture %}
+      {% assign json_feed__post__title__data = json_feed__post__title__data | strip_newlines | strip %}
+
+      {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__title__data %}
+      {% assign json_feed__post__title = nil %}
+      {% assign json_feed__post__title__data = nil %}
+    {% endif %}
+
+    {% comment %}
+    Build and append entry for `content_html`
+    {% endcomment %}
+    {% assign json_feed__post__content_html = post.output %}
+    {% capture json_feed__post__content_html__data %}
+      "content_html":{{ json_feed__post__content_html | jsonify }}
+    {% endcapture %}
+    {% assign json_feed__post__content_html__data = json_feed__post__content_html__data | strip_newlines | strip %}
+
+    {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__content_html__data %}
+    {% assign json_feed__post__content_html = nil %}
+    {% assign json_feed__post__content_html__data = nil %}
+
+    {% comment %}
+    Build and append entry for `summery`
+    {% endcomment %}
+    {% if post.description or post.excerpt or post.summery %}
+      {% assign json_feed__post__summery = post.description | default: post.excerpt | default: post.summery %}
+
+      {% capture json_feed__post__summery__data %}
+        "summery":{{ json_feed__post__summery | strip_html | jsonify }}
+      {% endcapture %}
+      {% assign json_feed__post__summery__data = json_feed__post__summery__data | strip_newlines | strip %}
+
+      {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__summery__data %}
+      {% assign json_feed__post__summery = nil %}
+      {% assign json_feed__post__summery__data = nil %}
+    {% endif %}
+
+    {% comment %}
+    Build and append entry for `image`
+    {% endcomment %}
+    {% if post.image %}
+      {% assign json_feed__post__image = post.image %}
+
+      {% capture json_feed__post__image__data %}
+        "image":{{ json_feed__post__image | jsonify }}
+      {% endcapture %}
+      {% assign json_feed__post__image__data = json_feed__post__image__data | strip_newlines | strip %}
+
+      {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__image__data %}
+      {% assign json_feed__post__image = nil %}
+      {% assign json_feed__post__image__data = nil %}
+    {% endif %}
+
+    {% comment %}
+    Build and append entry for `banner_image`
+    {% endcomment %}
+    {% if post.banner_image %}
+      {% assign json_feed__post__banner_image = post.banner_image %}
+
+      {% capture json_feed__post__banner_image__data %}
+        "banner_image":{{ json_feed__post__banner_image | jsonify }}
+      {% endcapture %}
+      {% assign json_feed__post__banner_image__data = json_feed__post__banner_image__data | strip_newlines | strip %}
+
+      {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__banner_image__data %}
+      {% assign json_feed__post__banner_image = nil %}
+      {% assign json_feed__post__banner_image__data = nil %}
+    {% endif %}
+
+    {% comment %}
+    Build and append entry for `date_published`
+    ```json
+    "date_published": "2010-02-07T14:04:00-05:00"
+    ```
+    {% endcomment %}
+    {% if post.date or post.date_published %}
+      {% assign json_feed__post__date_published__value = post.date | default: post.date_published %}
+      {% capture json_feed__post__date_published__data %}
+        "date_published":{{ json_feed__post__date_published__value | date: date_to_xmlschema | jsonify }}
+      {% endcapture %}
+      {% assign json_feed__post__date_published__data = json_feed__post__date_published__data | strip_newlines | strip %}
+      {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__date_published__data %}
+      {% assign json_feed__post__date_published__value = nil %}
+      {% assign json_feed__post__date_published__data = nil %}
+    {% endif %}
+
+    {% comment %}
+    Build and append entry for `date_modified`
+    {% endcomment %}
+    {% if post.date_updated or post.date_modified %}
+      {% assign json_feed__post__date_modified__value = post.date_updated | default: post.date_modified %}
+      {% capture json_feed__post__date_modified__data %}
+        "date_modified":{{ json_feed__post__date_modified__value | date: date_to_xmlschema | jsonify }}
+      {% endcapture %}
+      {% assign json_feed__post__date_modified__data = json_feed__post__date_modified__data | strip_newlines | strip %}
+      {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__date_modified__data %}
+      {% assign json_feed__post__date_modified__value = nil %}
+      {% assign json_feed__post__date_modified__data = nil %}
+    {% endif %}
+
+    {% comment %}
+    Build and append entry for `author`
+    ```json
+    "author": {
+      "name": "S0AndS0",
+      "url": "https://github.com/S0AndS0",
+      "avatar": "https://avatars2.githubusercontent.com/u/4116150?s=400&u=c45ac68bdfbeec882ff760450de243df45700a73&v=4"
+    },
+    ```
+    {% endcomment %}
+    {% if post.author['name'] %}
+      {% assign json_feed__post__author = post.author | jsonify %}
+      {% assign json_feed__post__author__data = '"author":{' %}
+      {% assign json_feed__post__author__data = json_feed__post__author__data | append: json_feed__post__author %}
+      {% assign json_feed__post__author__data = json_feed__post__author__data | append: '}' %}
+    {% elsif post.author %}
+      {% assign json_feed__post__author__data = '"author":{"name":"' %}
+      {% assign json_feed__post__author__data = json_feed__post__author__data | append: post.author %}
+      {% assign json_feed__post__author__data = json_feed__post__author__data | append: '"}' %}
+    {% elsif page.author['name'] %}
+      {% assign json_feed__post__author = page.author | jsonify %}
+      {% assign json_feed__post__author__data = '"author":{' %}
+      {% assign json_feed__post__author__data = json_feed__post__author__data | append: json_feed__post__author %}
+      {% assign json_feed__post__author__data = json_feed__post__author__data | append: '}' %}
+    {% elsif page.author %}
+      {% assign json_feed__post__author__data = '"author":{"name":"' %}
+      {% assign json_feed__post__author__data = json_feed__post__author__data | append: page.author %}
+      {% assign json_feed__post__author__data = json_feed__post__author__data | append: '"}' %}
+    {% elsif site.author['name'] %}
+      {% assign json_feed__post__author = site.author | jsonify %}
+      {% assign json_feed__post__author__data = '"author":{' %}
+      {% assign json_feed__post__author__data = json_feed__post__author__data | append: json_feed__post__author %}
+      {% assign json_feed__post__author__data = json_feed__post__author__data | append: '}' %}
+    {% elsif site.author %}
+      {% assign json_feed__post__author__data = '"author":{"name":"' %}
+      {% assign json_feed__post__author__data = json_feed__post__author__data | append: site.author %}
+      {% assign json_feed__post__author__data = json_feed__post__author__data | append: '"}' %}
+    {% endif %}
+    {% if json_feed__post__author__data %}
+      {% unless json_feed__post__author__data == json_feed__collection__author__data %}
+        {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__author__data %}
+      {% endunless %}
+      {% assign json_feed__post__author = nil %}
+      {% assign json_feed__post__author__data = nil %}
+    {% endif %}
+
+    {% comment %}
+    ```json
+    "tags": [
+      "spam",
+      "flavored",
+      "ham"
+    ]
+    ```
+    {% endcomment %}
+    {% if post.tags %}
+      {% assign json_feed__post__tags = post.tags %}
+      {% capture json_feed__post__tags__data %}
+        "tags":{{ json_feed__post__tags | jsonify }}
+      {% endcapture %}
+      {% assign json_feed__post__tags__data = json_feed__post__tags__data | strip_newlines | strip %}
+      {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__tags__data %}
+      {% assign json_feed__post__tags = nil %}
+      {% assign json_feed__post__tags__data = nil %}
+    {% endif %}
+
+    {% comment %}
+    ```json
+    "attachments": [
+      {
+        "url": "",
+        "mime_type": "",
+        "title": "",
+        "size_in_bytes": 99,
+        "duration_in_seconds": 42
+      }
+    ]
+    ```
+    {% endcomment %}
+    {% if post.attachments %}
+      {% assign json_feed__post__attachments = post.attachments %}
+      {% capture json_feed__post__attachments__data %}
+        "attachments":{{ json_feed__post__attachments | jsonify }}
+      {% endcapture %}
+      {% assign json_feed__post__attachments__data = json_feed__post__attachments__data | strip_newlines | strip %}
+      {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__attachments__data %}
+      {% assign json_feed__post__attachments = nil %}
+      {% assign json_feed__post__attachments__data = nil %}
+    {% endif %}
+
+    {% comment %}
+    TODO: add features for custom entries prefixed by an under-score, eg `_custom_entry`
+    {% endcomment %}
+
+    {% comment %}
+    Build and append entry for `content_text`
+    ```json
+    "content_text": "Content that expands on the topic of something about some thing"
+    ```
+    {% endcomment %}
+    {% assign json_feed__post__content_text = post.content %}
+    {% capture json_feed__post__content_text__data %}
+      "content_text":{{ json_feed__post__content_text | strip_html | jsonify }}
+    {% endcapture %}
+    {% assign json_feed__post__content_text__data = json_feed__post__content_text__data | strip_newlines | strip %}
+
+    {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__content_text__data %}
+    {% assign json_feed__post__content_text = nil %}
+    {% assign json_feed__post__content_text__data = nil %}
+
+    {% assign json_feed__entry__data = '{' %}
+    {% capture json_feed__entry__data %}{{ json_feed__entry__data }}{{ json_feed__entry__list | join: ',' }}{% endcapture %}
+    {% assign json_feed__entry__data = json_feed__entry__data | append: '}'%}
+    {% assign json_feed__items__list = json_feed__items__list | push: json_feed__entry__data %}
+  {% endfor %}
+  {% assign json_feed__entry__data = nil %}
+  {% assign json_feed__entry__list = nil %}
+
+  {% comment %}
+  Builds key value pares for whole collection, eg...
+  ```json
+  {
+    "version": "https://jsonfeed.org/version/1",
+    "title": "Collection of Posts",
+    "home_page_url": "https://<account>.github.io/<project>/",
+    "feed_url": "https://<acount>.github.io/<project>/posts/index.html",
+    "description": "",
+    "user_comment": "",
+    "next_url": "",
+    "icon": "https://<account>.github.io/<project>/posts/icon.png",
+    "favicon": "https://<account>.github.io/<project>/posts/fave.ico",
+    "expired": false
+  }
+  ```
+  {% endcomment %}
+  {% assign json_feed__data__list = json_feed__data__list | push: '"version":"https://jsonfeed.org/version/1"' %}
+
+  {% comment %}
+  "title": "Collection Title"
+  {% endcomment %}
+  {% if page.title %}
+    {% capture json_feed__collection__title__key_value %}
+      "title":{{ page.title | jsonify }}
+    {% endcapture %}
+    {% assign json_feed__collection__title__key_value = json_feed__collection__title__key_value | strip | strip_newlines %}
+    {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__title__key_value %}
+    {% assign json_feed__collection__title__key_value = nil %}
+  {% endif %}
+
+  {% comment %}
+  {% endcomment %}
+  {% capture json_feed__collection__home_page_url__key_value %}
+    "home_page_url":{{ site.url | jsonify }}
+  {% endcapture %}
+  {% assign json_feed__collection__home_page_url__key_value = json_feed__collection__home_page_url__key_value | strip | strip_newlines %}
+  {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__home_page_url__key_value %}
+  {% assign json_feed__collection__home_page_url__key_value = nil %}
+
+  {% comment %}
+  "description": ""
+  {% endcomment %}
+  {% assign json_feed__collection__description = page.description | default: post.summery | default: post.excerpt | default: nil %}
+  {% if json_feed__collection__description %}
+    {% capture json_feed__collection__description__value %}
+      "description":{{ json_feed__collection__description | strip_html | jsonify }}
+    {% endcapture %}
+    {% assign json_feed__collection__description__value = json_feed__collection__description__value | strip | strip_newlines %}
+    {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__description__value %}
+    {% assign json_feed__collection__description__value = nil %}
+    {% assign json_feed__collection__description = nil %}
+  {% endif %}
+
+  {% comment %}
+  "user_comment": ""
+  {% endcomment %}
+  {% if page.user_comment %}
+    {% capture json_feed__collection__user_comment__key_value %}
+      "user_comment":{{ page.user_comment | jsonify }}
+    {% endcapture %}
+    {% assign json_feed__collection__user_comment__key_value = json_feed__collection__user_comment__key_value | strip | strip_newlines %}
+    {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__user_comment__key_value %}
+    {% assign json_feed__collection__user_comment__key_value = nil %}
+  {% endif %}
+
+  {% comment %}
+  "next_url": "https://<account>.github.io/<project>/example-collection/"
+  {% endcomment %}
+  {% if page.next_url %}
+    {% capture json_feed__collection__next_url__key_value %}
+      "next_url":{{ page.next_url | jsonify }}
+    {% endcapture %}
+    {% assign json_feed__collection__next_url__key_value = json_feed__collection__next_url__key_value | strip | strip_newlines %}
+    {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__next_url__key_value %}
+    {% assign json_feed__collection__next_url__key_value = nil %}
+  {% endif %}
+
+  {% comment %}
+  "icon": "https://<account>.github.io/<project>/posts/icon.png"
+  {% endcomment %}
+  {% if page.icon %}
+    {% capture json_feed__collection__icon__key_value %}
+      "icon":{{ page.icon | jsonify }}
+    {% endcapture %}
+    {% assign json_feed__collection__icon__key_value = json_feed__collection__icon__key_value | strip | strip_newlines %}
+    {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__icon__key_value %}
+    {% assign json_feed__collection__icon__key_value = nil %}
+  {% endif %}
+
+  {% comment %}
+  ```json
+  "favicon": "https://<account>.github.io/<project>/posts/favicon.ico"
+  ```
+  {% endcomment %}
+  {% assign json_feed__site__favicon = site.favicon | default: nil %}
+  {% unless json_feed__site__favicon %}
+    {% assign json_feed__site__favicon = site.url | append: '/favicon.ico' %}
+  {% endunless %}
+  {% capture json_feed__site__favicon__key_value %}
+    "favicon":{{ json_feed__site__favicon | jsonify }}
+  {% endcapture %}
+  {% assign json_feed__site__favicon__key_value = json_feed__site__favicon__key_value | strip | strip_newlines %}
+  {% assign json_feed__data__list = json_feed__data__list | push: json_feed__site__favicon__key_value %}
+  {% assign json_feed__site__favicon__key_value = nil %}
+  {% assign json_feed__site__favicon = nil %}
+
+  {% comment %}
+  ```json
+  "expired": false
+  ```
+  {% endcomment %}
+  {% if page.expired == true or page.expired == false %}
+    {% capture json_feed__collection__expired__key_value %}
+      "expired":{{ page.expired | jsonify }}
+    {% endcapture %}
+  {% else %}
+    {% assign json_feed__collection__expired__key_value = '"expired":false' %}
+  {% endif %}
+  {% assign json_feed__collection__expired__key_value = json_feed__collection__expired__key_value | strip | strip_newlines %}
+  {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__expired__key_value %}
+  {% assign json_feed__collection__expired__key_value = nil %}
+
+  {% comment %}
+  Builds `hubs` dictionary for collection
+  ```json
+  "hubs": [
+    {
+      "type": "",
+      "url": ""
+    }
+  ]
+  ```
+  {% endcomment %}
+  {% if page.hubs %}
+    {% assign json_feed__collection__hubs = page.hubs | jsonify %}
+    {% assign json_feed__collection__hubs__data = '"hubs":{' %}
+    {% assign json_feed__collection__hubs__data = json_feed__collection__hubs__data | append: json_feed__collection__hubs %}
+    {% assign json_feed__collection__hubs__data = json_feed__collection__hubs__data | append: '}' %}
+    {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__hubs__data %}
+    {% assign json_feed__collection__hubs = nil %}
+    {% assign json_feed__collection__hubs__data = nil %}
+  {% endif %}
+
+
+  {% comment %}
+  Merges collection key/value pares with collection `items` list
+  {% endcomment %}
+  {% assign json_feed__data = '{' %}
+  {% if json_feed__has_output %}
+    {% capture json_feed__items__list__data %}"items":[{{ json_feed__items__list | join: ',' }}]{% endcapture %}
+    {% assign json_feed__data__list = json_feed__data__list | push: json_feed__items__list__data %}
+    {% assign json_feed__items__list = nil %}
+    {% assign json_feed__items__list__data = nil %}
+  {% endif %}
+  {% capture json_feed__data %}{{ json_feed__data }}{{ json_feed__data__list | join: ',' }}{% endcapture %}
+  {% assign json_feed__data = json_feed__data | strip | strip_newlines | append: '}' %}
+
+
+  {% assign json_feed__collection__name = nil %}
+  {% assign json_feed__collection__data = nil %}
+  {% assign json_feed__collection__author__data = nil %}
+  {% assign json_feed__data__list = nil %}
+  {% assign json_feed__has_output = nil %}
+{% endcapture %}{{ json_feed__data }}{% assign json_feed__data = nil %}{% assign workspace__json_feed = nil %}
+{% comment %}
+  vim:filetype=liquid
+{% endcomment %}
