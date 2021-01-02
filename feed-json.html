@@ -69,7 +69,10 @@ layout: null
     {% if post.id %}
       {% assign json_feed__post__id = post.id %}
     {% else %}
-      {% assign json_feed__post__id = post.url | absolute_url %}
+      {% capture json_feed__post__id %}
+        {{ post.url | absolute_url }}
+      {% endcapture %}
+      {% assign json_feed__post__id = json_feed__post__id | strip | strip_newlines %}
     {% endif %}
     {% capture json_feed__post__id__data %}
       "id":{{ json_feed__post__id | jsonify }}
