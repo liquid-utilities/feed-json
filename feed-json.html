@@ -12,15 +12,32 @@ layout: null
 
   {% comment %}
   Builds `author` dictionary for collection
+
+  Spec. Version 1 if `author` or `author['name']` is assigned
   ```json
   "author": {
     "name": "S0AndS0",
     "url": "https://github.com/S0AndS0",
     "avatar": "https://avatars2.githubusercontent.com/u/4116150?s=460&u=c45ac68bdfbeec882ff760450de243df45700a73&v=4"
-  },
+  }
+  ```
+
+  Spec. Version 1.1 if `authors` and `authors[0]` and `authors[0]['name']` are assigned
+  ```json
+  "authors": [
+    {
+      "name": "S0AndS0",
+      "url": "https://github.com/S0AndS0",
+      "avatar": "https://avatars2.githubusercontent.com/u/4116150?s=460&u=c45ac68bdfbeec882ff760450de243df45700a73&v=4"
+    }
+  ]
   ```
   {% endcomment %}
-  {% if page.author['name'] %}
+  {% if page.authors and page.authors[0] and page.authors[0]['name'] %}
+    {% assign json_feed__collection__authors__value = page.authors | jsonify %}
+    {% assign json_feed__collection__authors__data = '"authors":' | append: json_feed__collection__authors__value %}
+    {% assign json_feed__collection__authors__value = nil %}
+  {% elsif page.author['name'] %}
     {% assign json_feed__collection__author__value = page.author | jsonify %}
     {% assign json_feed__collection__author__data = '"author":{' %}
     {% assign json_feed__collection__author__data = json_feed__collection__author__data | append: json_feed__collection__author__value %}
@@ -30,6 +47,10 @@ layout: null
     {% assign json_feed__collection__author__data = '"author":{"name":"' %}
     {% assign json_feed__collection__author__data = json_feed__collection__author__data | append: page.author %}
     {% assign json_feed__collection__author__data = json_feed__collection__author__data | append: '"}' %}
+  {% elsif site.authors and site.authors[0] and site.authors[0]['name'] %}
+    {% assign json_feed__collection__authors__value = page.authors | jsonify %}
+    {% assign json_feed__collection__authors__data = '"authors":' | append: json_feed__collection__authors__value %}
+    {% assign json_feed__collection__authors__value = nil %}
   {% elsif site.author['name'] %}
     {% assign json_feed__collection__author__value = site.author | jsonify %}
     {% assign json_feed__collection__author__data = '"author":{' %}
@@ -41,7 +62,9 @@ layout: null
     {% assign json_feed__collection__author__data = json_feed__collection__author__data | append: site.author %}
     {% assign json_feed__collection__author__data = json_feed__collection__author__data | append: '"}' %}
   {% endif %}
-  {% if json_feed__collection__author__data %}
+  {% if json_feed__collection__authors__data %}
+    {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__authors__data %}
+  {% elsif json_feed__collection__author__data %}
     {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__author__data %}
   {% endif %}
 
@@ -227,16 +250,33 @@ layout: null
     {% endif %}
 
     {% comment %}
-    Build and append entry for `author`
+    Build and append entry for `author` or `authors`
+
+    Spec. Version 1 if `author` or `author['name']` is assigned
     ```json
     "author": {
       "name": "S0AndS0",
       "url": "https://github.com/S0AndS0",
-      "avatar": "https://avatars2.githubusercontent.com/u/4116150?s=400&u=c45ac68bdfbeec882ff760450de243df45700a73&v=4"
-    },
+      "avatar": "https://avatars2.githubusercontent.com/u/4116150?s=460&u=c45ac68bdfbeec882ff760450de243df45700a73&v=4"
+    }
+    ```
+
+    Spec. Version 1.1 if `authors` and `authors[0]` and `authors[0]['name']` are assigned
+    ```json
+    "authors": [
+      {
+        "name": "S0AndS0",
+        "url": "https://github.com/S0AndS0",
+        "avatar": "https://avatars2.githubusercontent.com/u/4116150?s=460&u=c45ac68bdfbeec882ff760450de243df45700a73&v=4"
+      }
+    ]
     ```
     {% endcomment %}
-    {% if post.author['name'] %}
+    {% if post.authors and post.authors[0] and post.authors[0]['name'] %}
+      {% assign json_feed__post__authors__value = page.authors | jsonify %}
+      {% assign json_feed__post__authors__data = '"authors":' | append: json_feed__post__authors__value %}
+      {% assign json_feed__post__authors__value = nil %}
+    {% elsif post.author['name'] %}
       {% assign json_feed__post__author = post.author | jsonify %}
       {% assign json_feed__post__author__data = '"author":{' %}
       {% assign json_feed__post__author__data = json_feed__post__author__data | append: json_feed__post__author %}
@@ -245,26 +285,14 @@ layout: null
       {% assign json_feed__post__author__data = '"author":{"name":"' %}
       {% assign json_feed__post__author__data = json_feed__post__author__data | append: post.author %}
       {% assign json_feed__post__author__data = json_feed__post__author__data | append: '"}' %}
-    {% elsif page.author['name'] %}
-      {% assign json_feed__post__author = page.author | jsonify %}
-      {% assign json_feed__post__author__data = '"author":{' %}
-      {% assign json_feed__post__author__data = json_feed__post__author__data | append: json_feed__post__author %}
-      {% assign json_feed__post__author__data = json_feed__post__author__data | append: '}' %}
-    {% elsif page.author %}
-      {% assign json_feed__post__author__data = '"author":{"name":"' %}
-      {% assign json_feed__post__author__data = json_feed__post__author__data | append: page.author %}
-      {% assign json_feed__post__author__data = json_feed__post__author__data | append: '"}' %}
-    {% elsif site.author['name'] %}
-      {% assign json_feed__post__author = site.author | jsonify %}
-      {% assign json_feed__post__author__data = '"author":{' %}
-      {% assign json_feed__post__author__data = json_feed__post__author__data | append: json_feed__post__author %}
-      {% assign json_feed__post__author__data = json_feed__post__author__data | append: '}' %}
-    {% elsif site.author %}
-      {% assign json_feed__post__author__data = '"author":{"name":"' %}
-      {% assign json_feed__post__author__data = json_feed__post__author__data | append: site.author %}
-      {% assign json_feed__post__author__data = json_feed__post__author__data | append: '"}' %}
     {% endif %}
-    {% if json_feed__post__author__data %}
+    {% if json_feed__post__authors__data %}
+      {% unless json_feed__post__authors__data == json_feed__collection__authors__data %}
+        {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__authors__data %}
+      {% endunless %}
+      {% assign json_feed__post__authors = nil %}
+      {% assign json_feed__post__authors__data = nil %}
+    {% elsif json_feed__post__author__data %}
       {% unless json_feed__post__author__data == json_feed__collection__author__data %}
         {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__author__data %}
       {% endunless %}
@@ -528,6 +556,7 @@ layout: null
 
   {% assign json_feed__collection__name = nil %}
   {% assign json_feed__collection__data = nil %}
+  {% assign json_feed__collection__authors__data = nil %}
   {% assign json_feed__collection__author__data = nil %}
   {% assign json_feed__data__list = nil %}
   {% assign json_feed__has_output = nil %}
