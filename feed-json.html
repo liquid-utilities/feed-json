@@ -368,7 +368,7 @@ layout: null
   "home_page_url": "https://<account>.github.io/<project>"
   {% endcomment %}
   {% capture json_feed__collection__home_page_url__key_value %}
-    "home_page_url":{{ site.url | jsonify }}
+    "home_page_url":{{ site.url | absolute_url | jsonify }}
   {% endcapture %}
   {% assign json_feed__collection__home_page_url__key_value = json_feed__collection__home_page_url__key_value | strip | strip_newlines %}
   {% assign json_feed__data__list = json_feed__data__list | push: json_feed__collection__home_page_url__key_value %}
