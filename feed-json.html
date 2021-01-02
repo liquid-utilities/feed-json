@@ -103,10 +103,15 @@ layout: null
     {% if post.id %}
       {% assign json_feed__post__id = post.id %}
     {% else %}
+      {% capture json_feed__post__url %}
+        {{ post.url }}
+      {% endcapture %}
+      {% assign json_feed__post__url = json_feed__post__url | strip | strip_newlines %}
       {% capture json_feed__post__id %}
-        {{ post.url | absolute_url }}
+        {{ json_feed__post__url | absolute_url }}
       {% endcapture %}
       {% assign json_feed__post__id = json_feed__post__id | strip | strip_newlines %}
+      {% assign json_feed__post__url = nil %}
     {% endif %}
     {% capture json_feed__post__id__key_value %}
       "id":{{ json_feed__post__id | jsonify }}
