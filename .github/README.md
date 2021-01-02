@@ -276,11 +276,11 @@ Expect JSON output similar to...
     {
       "id": "https://<account>.github.io/<project>/posts/<name>.<ext>",
       "url": "https://<account>.github.io/<project>/posts/<name>.<ext>",
-      "external_url": "",
+      "external_url": "https://example.com/some-applicable-reference",
       "title": "Title of Page",
       "content_html": "<html><!-- Results of rendering post layout --></html>",
       "summary": "A description of page content",
-      "image": "",
+      "image": "https://<account>.github.io/<project>/assets/images/cats/funny.png",
       "banner_image": "",
       "date_published": "2021-01-01T14:13:41-14:00",
       "date_modified": "2021-01-02T14:15:00-14:00",
@@ -338,12 +338,19 @@ next_url: string?
 icon: string?
 favicon: string?
 expired: boolean?
+language: string?
 
 author: string? | dictionary?
 #author:
 #  name: string
 #  url: string?
 #  avatar: string?
+
+authors: dictionary[]?
+#authors:
+#  - name: string
+#    url: string?
+#    avatar: string?
 
 hubs: dictionary[]?
 #hubs:
@@ -363,6 +370,7 @@ image: string?
 banner_image: string?
 external_url: string?
 tags: string[]?
+language: string?
 
 date: string?
 #date_published: aliased to date
@@ -381,6 +389,12 @@ author: string? | dictionary?
 #  name: string
 #  url: string?
 #  avatar: string?
+
+authors: dictionary[]?
+#authors:
+#  - name: string
+#    url: string?
+#    avatar: string?
 
 attachments: dictionary[]?
 #attachments:
@@ -404,12 +418,16 @@ attachments: dictionary[]?
 
 - JSON `"summary"` is built from `{{ post.description }}`, `{{ post.summary }}`, or `{{ post.excerpt }}`, where available and filtered similarly to `{{ post.description | strip_html | jsonify }}`
 
-- JSON `"author": {"name": "", "url": "", "avatar": ""}` are built from `{{ page.author }}`, or `{{ site.author }}`, when avalable. If YAML `author` is a string, then it is coerced to JSON `{"author": {"name": ""}}`; else if YAML `author['name']` is accassable, then no coercion other than `jsonify` filter is used.
+- JSON `"author": {"name": "", "url": "", "avatar": ""}` are built from `{{ page.author }}`, or `{{ site.author }}`, when available. If YAML `author` is a string, then it is coerced to JSON `{"author": {"name": ""}}`; else if YAML `author['name']` is accessible, then no coercion other than `jsonify` filter is used.
+
+> Notes, for JSON Feed Specification version `1.1` JSON Feed compatibility
+
+- JSON `"authors": [{"name": "", "url": "", "avatar": ""}]` are built from `{{ page.authors }}` or `{{ site.authors }}`, when available, but only if recognized as a list containing at least one object with `name` assigned
 
 
 > YAML keys not listed above map directly to JSON with minimal filtering/alteration.
 >
-> This project aims to be fully compatible with [JSON Feed Specificaton][link__jsonfeed__version]; check there for further details on available key/value pares, and expected data types.
+> This project aims to be fully compatible with [JSON Feed Specification version 1][link__json_feed__version_1]; check there for further details on available key/value pares, and expected data types.
 
 
 ______
@@ -548,6 +566,8 @@ ______
 
 - [GitHub -- `github-utilities/make-readme`](https://github.com/github-utilities/make-readme)
 
+- [GitHub -- Jekyll -- Issue `6521` How do I use absolute_url/relative_url in combination with link?](https://github.com/jekyll/jekyll/issues/6521)
+
 - [Jekyll -- Liquid Filters](https://jekyllrb.com/docs/liquid/filters/)
 
 - [JSON Feed -- Version 1](https://jsonfeed.org/version/1)
@@ -661,7 +681,11 @@ For further details review full length version of [AGPL-3.0][branch__current__li
   "&#x1F4B1; Sponsor developments and projects that liquid-utilities maintains via Liberapay"
 
 
-[link__jsonfeed__version_one]:
+[link__json_feed__version_1]:
   https://jsonfeed.org/version/1
-  "Specificaton documentation from JSON Feed (version 1)"
+  "Specification documentation from JSON Feed (version 1)"
+
+[link__json_feed__version_1_1]:
+  https://jsonfeed.org/version/1.1
+  "Specification documentation from JSON Feed (version 1.1)"
 
