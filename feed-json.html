@@ -181,7 +181,7 @@ layout: null
     {% if post.date or post.date_published %}
       {% assign json_feed__post__date_published__value = post.date | default: post.date_published %}
       {% capture json_feed__post__date_published__data %}
-        "date_published":{{ json_feed__post__date_published__value | date: date_to_xmlschema | jsonify }}
+        "date_published":{{ json_feed__post__date_published__value | date_to_xmlschema | jsonify }}
       {% endcapture %}
       {% assign json_feed__post__date_published__data = json_feed__post__date_published__data | strip_newlines | strip %}
       {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__date_published__data %}
@@ -195,7 +195,7 @@ layout: null
     {% if post.date_updated or post.date_modified %}
       {% assign json_feed__post__date_modified__value = post.date_updated | default: post.date_modified %}
       {% capture json_feed__post__date_modified__data %}
-        "date_modified":{{ json_feed__post__date_modified__value | date: date_to_xmlschema | jsonify }}
+        "date_modified":{{ json_feed__post__date_modified__value | date_to_xmlschema | jsonify }}
       {% endcapture %}
       {% assign json_feed__post__date_modified__data = json_feed__post__date_modified__data | strip_newlines | strip %}
       {% assign json_feed__entry__list = json_feed__entry__list | push: json_feed__post__date_modified__data %}
