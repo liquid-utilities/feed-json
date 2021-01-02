@@ -1,0 +1,11 @@
+---
+layout: modules/feed-json/feed-json
+title: Example Collection
+collection_name: example-collection
+collection_home: /example-collection/
+date: 2021-01-01 11:12:13 -0700
+permalink: /:collection/:name:output_ext
+---
+{% comment %}
+  vim:filetype=liquid
+{% endcomment %}
