@@ -1,4 +1,6 @@
 ---
+vim: filetype=liquid
+description: JSON feed from collection and FrontMatter data
 version: 0.0.1
 license: AGPL-3.0
 author: S0AndS0
@@ -572,6 +574,3 @@ layout: null
   {% assign json_feed__data__list = nil %}
   {% assign json_feed__has_output = nil %}
 {% endcapture %}{{ json_feed__data }}{% assign json_feed__data = nil %}{% assign workspace__json_feed = nil %}
-{% comment %}
-  vim:filetype=liquid
-{% endcomment %}
