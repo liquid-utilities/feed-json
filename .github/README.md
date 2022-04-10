@@ -461,7 +461,7 @@ EOF
 ---
 
 
-For auto-discovery of feeds it is advised to inclide a `link` element within the page `head`, eg...
+For auto-discovery of feeds it is advised to include a `link` element within the page `head`, eg...
 
 
 ```HTML
