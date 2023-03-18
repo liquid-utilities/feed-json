@@ -31,7 +31,7 @@ GEM
       safe_yaml (~> 1.0)
       terminal-table (>= 1.8, < 4.0)
       webrick (~> 1.7)
-    jekyll-feed (0.16.0)
+    jekyll-feed (0.17.0)
       jekyll (>= 3.7, < 5.0)
     jekyll-sass-converter (3.0.0)
       sass-embedded (~> 1.54)
@@ -80,7 +80,7 @@ PLATFORMS
 
 DEPENDENCIES
   jekyll (~> 4.3.2)
-  jekyll-feed (~> 0.16)
+  jekyll-feed (~> 0.17)
   kramdown-parser-gfm
   minima (~> 2.0)
   tzinfo (~> 2.0)
